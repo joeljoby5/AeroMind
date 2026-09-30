@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.db
+*.sqlite
+.env
+node_modules/
+.next/
+frontend/.next/
+frontend/node_modules/
+.ipynb_checkpoints/

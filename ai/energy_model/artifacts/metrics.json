@@ -1,0 +1,59 @@
+{
+  "best_model": "GradientBoostingRegressor",
+  "selection_criterion": "lowest 5-fold cross-validated RMSE on the training split",
+  "target": "energy_pct",
+  "features": [
+    "distance_m",
+    "altitude_change_m",
+    "payload_kg",
+    "wind_speed_ms",
+    "wind_alignment",
+    "battery_health",
+    "cruise_speed_ms",
+    "drone_type"
+  ],
+  "n_rows": 20000,
+  "n_train": 16000,
+  "n_test": 4000,
+  "seed": 42,
+  "sklearn_version": "1.9.1",
+  "models": {
+    "LinearRegression": {
+      "mae": 2.7928,
+      "rmse": 4.1136,
+      "r2": 0.8932,
+      "cv_rmse_mean": 3.9428,
+      "cv_rmse_std": 0.053,
+      "cv_mae_mean": 2.69,
+      "cv_r2_mean": 0.8951
+    },
+    "RandomForestRegressor": {
+      "mae": 1.1028,
+      "rmse": 1.8917,
+      "r2": 0.9774,
+      "cv_rmse_mean": 1.9056,
+      "cv_rmse_std": 0.0397,
+      "cv_mae_mean": 1.1386,
+      "cv_r2_mean": 0.9755
+    },
+    "GradientBoostingRegressor": {
+      "mae": 0.6444,
+      "rmse": 1.0433,
+      "r2": 0.9931,
+      "cv_rmse_mean": 1.0771,
+      "cv_rmse_std": 0.0252,
+      "cv_mae_mean": 0.6687,
+      "cv_r2_mean": 0.9922
+    }
+  },
+  "feature_importance": {
+    "distance_m": 0.7339,
+    "drone_type": 0.1292,
+    "altitude_change_m": 0.0467,
+    "wind_alignment": 0.0346,
+    "battery_health": 0.0223,
+    "payload_kg": 0.0181,
+    "wind_speed_ms": 0.0087,
+    "cruise_speed_ms": 0.0065
+  }
+}
