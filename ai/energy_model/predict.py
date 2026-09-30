@@ -33,6 +33,20 @@ def heuristic_energy(df: pd.DataFrame) -> np.ndarray:
     )
 
 
+class HeuristicEstimator:
+    """Deterministic, model-free estimator (same interface). Used when no ML model is wanted."""
+
+    model_name = "LinearHeuristic"
+    is_fallback = True
+
+    def predict_batch(self, rows: Sequence[Mapping] | pd.DataFrame) -> np.ndarray:
+        df = _to_frame(rows)
+        return np.clip(heuristic_energy(df), 0.2, None) if len(df) else np.zeros(0)
+
+    def predict(self, features: Mapping) -> float:
+        return float(self.predict_batch([features])[0])
+
+
 class EnergyPredictor:
     """Implements the `EnergyEstimator` protocol with the trained scikit-learn pipeline."""
 

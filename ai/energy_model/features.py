@@ -70,7 +70,8 @@ def leg_features(
         raise ValueError(f"unknown drone_type {drone_type!r}; expected one of {DRONE_TYPES}")
     speed = cruise_speed_ms if cruise_speed_ms is not None else DEFAULT_CRUISE_SPEED_MS[drone_type]
     return {
-        "distance_m": distance_m,  # clipped low only; the predictor extrapolates above the max
+        # clipped low only; the predictor extrapolates linearly above the training maximum
+        "distance_m": max(distance_m, RANGES["distance_m"][0]),
         "altitude_change_m": _clip("altitude_change_m", altitude_change_m),
         "payload_kg": _clip("payload_kg", payload_kg),
         "wind_speed_ms": _clip("wind_speed_ms", env.wind_speed_ms),
