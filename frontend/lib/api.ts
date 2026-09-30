@@ -1,5 +1,5 @@
 import type {
-  CompareOut, Drone, MissionDetail, Mission, ModelInfo, Obstacle, PlanOut, Strategy, Waypoint,
+  CompareOut, Drone, DroneCreate, MissionDetail, Mission, ModelInfo, Obstacle, PlanOut, Strategy, Waypoint,
 } from "./types";
 
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
@@ -39,6 +39,7 @@ const post = <T>(path: string, body?: unknown) =>
 
 export const api = {
   drones: () => request<Drone[]>("/api/drones"),
+  createDrone: (body: DroneCreate) => post<Drone>("/api/drones", body),
   missions: () => request<Mission[]>("/api/missions"),
   mission: (id: number) => request<MissionDetail>(`/api/missions/${id}`),
   createMission: (name: string, tasks: Waypoint[]) => post<MissionDetail>("/api/missions", { name, tasks }),

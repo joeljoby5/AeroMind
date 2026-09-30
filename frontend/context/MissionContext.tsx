@@ -6,11 +6,11 @@ import {
 import { api, ApiError } from "@/lib/api";
 import { droneColor } from "@/lib/colors";
 import type {
-  CompareOut, Drone, MissionDetail, PlanOut, Strategy, Waypoint,
+  CompareOut, Drone, DroneCreate, MissionDetail, PlanOut, Strategy, Waypoint,
 } from "@/lib/types";
 import { useTelemetryContext } from "./TelemetryContext";
 
-export type MapMode = "idle" | "waypoint" | "obstacle";
+export type MapMode = "idle" | "waypoint" | "obstacle" | "home";
 type Busy = "init" | "plan" | "start" | "stop" | "obstacle" | null;
 
 interface MissionContextValue {
@@ -27,6 +27,9 @@ interface MissionContextValue {
   obstacleRadius: number;
   busy: Busy;
   error: string | null;
+  pendingHome: { lat: number; lon: number } | null;
+  setPendingHome: (p: { lat: number; lon: number } | null) => void;
+  registerDrone: (body: DroneCreate) => Promise<boolean>;
   colorOf: (droneId: number) => string;
   setStrategy: (s: Strategy) => void;
   setMode: (m: MapMode) => void;
@@ -67,6 +70,7 @@ export function MissionProvider({ children }: { children: ReactNode }) {
   const [busy, setBusy] = useState<Busy>("init");
   const [error, setError] = useState<string | null>(null);
   const [initNonce, setInitNonce] = useState(0);
+  const [pendingHome, setPendingHome] = useState<{ lat: number; lon: number } | null>(null);
 
   const applyDetail = useCallback((d: MissionDetail) => {
     setDetail(d);
@@ -137,7 +141,19 @@ export function MissionProvider({ children }: { children: ReactNode }) {
     const idIndex = new Map(drones.map((d, i) => [d.id, i]));
     return {
       drones, detail, draft, dirty, planActive, plan, compare, compareError, strategy, mode,
-      obstacleRadius, busy, error,
+      obstacleRadius, busy, error, pendingHome, setPendingHome,
+      registerDrone: async (body) => {
+        try {
+          const created = await api.createDrone(body);
+          setDrones((ds) => [...ds, created]);
+          setPendingHome(null);
+          setError(null);
+          return true;
+        } catch (e) {
+          setError(msg(e));
+          return false;
+        }
+      },
       colorOf: (id) => droneColor(idIndex.get(id) ?? id),
       setStrategy, setMode, setObstacleRadius,
       addWaypoint: (lat, lon) => {
@@ -213,7 +229,7 @@ export function MissionProvider({ children }: { children: ReactNode }) {
       retryInit: () => setInitNonce((n) => n + 1),
     };
   }, [drones, detail, draft, dirty, plan, compare, compareError, strategy, mode, obstacleRadius, busy,
-      error, guard, applyDetail, loadCompare]);
+      error, pendingHome, guard, applyDetail, loadCompare]);
 
   return <MissionContext.Provider value={value}>{children}</MissionContext.Provider>;
 }

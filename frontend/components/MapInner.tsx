@@ -39,10 +39,13 @@ const droneIcon = (color: string, label: string, heading: number, alert: boolean
   });
 
 function ClickHandler() {
-  const { mode, addWaypoint, injectObstacle } = useMission();
+  const { mode, addWaypoint, injectObstacle, setPendingHome, setMode } = useMission();
   useMapEvents({
     click(e) {
-      if (mode === "waypoint") addWaypoint(e.latlng.lat, e.latlng.lng);
+      if (mode === "home") {
+        setPendingHome({ lat: e.latlng.lat, lon: e.latlng.lng });
+        setMode("idle");
+      } else if (mode === "waypoint") addWaypoint(e.latlng.lat, e.latlng.lng);
       else if (mode === "obstacle") void injectObstacle(e.latlng.lat, e.latlng.lng);
     },
   });
@@ -63,7 +66,7 @@ function FitBounds({ points, fitKey }: { points: LatLng[]; fitKey: string }) {
 }
 
 export default function MapInner() {
-  const { drones, detail, draft, dirty, planActive, colorOf, mode, obstacleRadius } = useMission();
+  const { drones, detail, draft, dirty, planActive, colorOf, mode, obstacleRadius, pendingHome } = useMission();
   const tel = useTelemetryContext();
 
   const droneById = useMemo(() => new Map(drones.map((d) => [d.id, d])), [drones]);
@@ -145,6 +148,12 @@ export default function MapInner() {
           </Marker>
         ))}
 
+        {pendingHome && (
+          <Marker position={[pendingHome.lat, pendingHome.lon]} icon={homeIcon("#e8ecf2")}>
+            <Tooltip permanent>New drone home</Tooltip>
+          </Marker>
+        )}
+
         {/* waypoints */}
         {draft.map((w, i) => {
           const task = !dirty ? detail?.tasks[i] : undefined;
@@ -185,7 +194,11 @@ export default function MapInner() {
 
       {mode !== "idle" && (
         <div className="pointer-events-none absolute left-1/2 top-3 z-[1000] -translate-x-1/2 rounded-full border border-line bg-panel/95 px-4 py-1.5 text-sm shadow">
-          {mode === "waypoint" ? "＋ Click the map to add a waypoint" : `⚠ Click the map to inject a ${obstacleRadius} m obstacle`}
+          {mode === "waypoint"
+            ? "＋ Click the map to add a waypoint"
+            : mode === "home"
+              ? "H Click the map to set the new drone's home base"
+              : `⚠ Click the map to inject a ${obstacleRadius} m obstacle`}
         </div>
       )}
       {tel.status !== "open" && (

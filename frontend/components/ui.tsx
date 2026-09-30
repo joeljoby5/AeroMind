@@ -64,10 +64,10 @@ export function Card({ title, children, right }: { title?: string; children: Rea
 }
 
 export function Btn({
-  children, onClick, disabled, tone = "default", active, title, className = "",
+  children, onClick, disabled, tone = "default", active, title, className = "", type = "button",
 }: {
   children: ReactNode; onClick?: () => void; disabled?: boolean; title?: string; className?: string;
-  tone?: "default" | "primary" | "danger"; active?: boolean;
+  tone?: "default" | "primary" | "danger"; active?: boolean; type?: "button" | "submit";
 }) {
   const base = "inline-flex items-center justify-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40";
   const tones = {
@@ -77,6 +77,7 @@ export function Btn({
   } as const;
   return (
     <button
+      type={type}
       title={title}
       onClick={onClick}
       disabled={disabled}

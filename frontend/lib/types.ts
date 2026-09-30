@@ -13,6 +13,15 @@ export interface Drone {
   status: string;
 }
 
+export interface DroneCreate {
+  name: string;
+  type: DroneType;
+  battery_pct: number;
+  health: number;
+  home_lat: number;
+  home_lon: number;
+}
+
 export interface Task {
   id: number;
   lat: number;
