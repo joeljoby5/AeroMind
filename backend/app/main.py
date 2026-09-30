@@ -42,6 +42,8 @@ async def _ticker(app: FastAPI) -> None:
     while True:
         await asyncio.sleep(c.settings.tick_s)
         try:
+            if not (c.runtime.is_running() or c.manager.connections):
+                continue  # nothing to simulate and nobody listening
             snap = c.runtime.tick()
             if c.manager.connections:
                 await c.manager.broadcast(snap)

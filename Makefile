@@ -5,7 +5,7 @@ BIN      := $(VENV)/bin
 export PYTHONPATH := $(CURDIR):$(CURDIR)/backend
 export DATABASE_URL ?= sqlite:///$(CURDIR)/aeromind.db
 
-.PHONY: setup seed reseed train notebook evaluate test dev backend frontend clean
+.PHONY: setup seed reseed train notebook evaluate test checklist jupyter dev backend frontend clean
 
 setup:            ## create venv, install Python + frontend dependencies
 	$(PYTHON) -m venv $(VENV)
@@ -33,6 +33,12 @@ evaluate:         ## ML vs baseline over 200 random missions (writes docs/alloca
 test:             ## AI + backend tests (frontend: type-check and build)
 	$(BIN)/python -m pytest -q
 	cd frontend && npx tsc --noEmit
+
+checklist:        ## verify everything is demo-ready and print what is stubbed
+	$(BIN)/python scripts/final_checklist.py
+
+jupyter:          ## open the notebook in JupyterLab
+	$(BIN)/jupyter lab notebooks/01_energy_model.ipynb
 
 backend:          ## API on :8000
 	$(BIN)/uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port 8000 --reload
